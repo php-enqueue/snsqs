@@ -122,9 +122,12 @@ class SnsQsConsumer implements Consumer
                 if (isset($data['Message'])) {
                     $message->setBody((string) $data['Message']);
                 }
-
                 if (isset($data['MessageAttributes']['Headers'])) {
-                    $headersData = json_decode($data['MessageAttributes']['Headers']['Value'], true);
+                    $rawHeaderData = $data['MessageAttributes']['Headers']['Value'];
+                    if (isset($rawHeaderData[0]) && '[' !== $rawHeaderData[0]) {
+                        $rawHeaderData = base64_decode($rawHeaderData);
+                    }
+                    $headersData = json_decode($rawHeaderData, true);
 
                     $message->setHeaders($headersData[0]);
                     $message->setProperties($headersData[1]);
